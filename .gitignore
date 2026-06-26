@@ -10,7 +10,7 @@ venv.bak/
 # Outputs
 output/
 report.html
-*.md
+output/*.md
 
 # Python
 __pycache__/
