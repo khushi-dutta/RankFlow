@@ -1,0 +1,41 @@
+name: SEO Audit
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * 1" # Every Monday
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          crawl4ai-setup || true
+
+      - name: Run SEO Pipeline
+        run: python main.py https://example.com # Replace with target URL
+
+      - name: Commit and Create PR
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout -b auto-seo-update-${{ github.run_id }}
+          git add output/
+          git commit -m "Automated SEO & AEO Optimization" || echo "No changes to commit"
+          git push origin auto-seo-update-${{ github.run_id }} || echo "No changes to push"
+          # PR creation could be added via GitHub CLI (`gh pr create`)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
